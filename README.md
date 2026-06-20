@@ -46,7 +46,6 @@ muthr-specs/
 │   ├── llama-cpp/            # llama.cpp presets (*.ini → llama-server flags)
 │   │   ├── bw600g-qwen3.6-35b-a3b.ini
 │   │   └── bw150g-qwen3.5-9b.ini
-│   ├── rapid-mlx/            # Rapid MLX presets
 │   └── provision.d/          # Lima provision scripts (used via file: in YAML)
 │       ├── lib/provision-lib.sh
 │       ├── mcp-services.sh
