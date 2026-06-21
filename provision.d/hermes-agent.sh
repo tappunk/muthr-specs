@@ -66,11 +66,8 @@ EOF
 
 touch "$HOME/.muthr_provision.lock"
 
-echo "[ OK ] Hermes Agent environment online."
+echo "[ OK ] Hermes Agent environment initialized successfully."
 echo ""
 echo "   Model:        ${MODEL_NAME}"
 echo "   Engine URL:   ${OPENAI_URL}"
 echo "   Config:       ~/.hermes/config.yaml"
-echo ""
-
-exec bash -l

@@ -154,12 +154,9 @@ EOF
 
 touch "$HOME/.muthr_provision.lock"
 
-echo "[ OK ] Opencode environment online."
+echo "[ OK ] Opencode environment initialized successfully."
 echo ""
 echo "   Model:        ${MODEL_NAME}"
 echo "   Context:      ${CTX_WINDOW} tokens"
 echo "   Engine URL:   ${OPENAI_URL}"
 echo "   Workspace:    ${WORKSPACE_MOUNT}"
-echo ""
-
-exec opencode
