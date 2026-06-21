@@ -24,11 +24,10 @@ if ! command -v npm &>/dev/null; then
     sudo apt-get update -qq && sudo apt-get install -y -qq nodejs npm
 fi
 
-echo "[PROC] Installing MCP servers (memory, filesystem)..."
+echo "[PROC] Installing MCP servers (memory)..."
 sudo npm install -g --loglevel=silent --yes \
     @ai-sdk/openai-compatible \
-    @modelcontextprotocol/server-memory \
-    @modelcontextprotocol/server-filesystem
+    @modelcontextprotocol/server-memory
 
 echo "[PROC] Deploying Astral UV package manager..."
 curl -LsSf https://astral.sh/uv/install.sh | sudo env UV_INSTALL_DIR='/usr/local/bin' sh
@@ -114,8 +113,16 @@ cat > "$HOME/.opencode/opencode.json" << EOF
     },
     "filesystem": {
       "type": "local",
-      "command": ["mcp-server-filesystem", "${WORKSPACE_MOUNT}"],
+      "command": ["uvx", "mcp-server-filesystem", "${WORKSPACE_MOUNT}"],
       "enabled": true
+    },
+    "searxng": {
+      "type": "local",
+      "command": ["npx", "-y", "mcp-searxng", "--stdio"],
+      "enabled": true,
+      "environment": {
+        "SEARXNG_URL": "http://host.lima.internal:18766"
+      }
     }
   },
 
