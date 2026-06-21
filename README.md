@@ -1,4 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![X Follow](https://img.shields.io/twitter/follow/tappunk?style=social)](https://x.com/tappunk)
 
 # muthr-specs
 
@@ -49,12 +50,12 @@ Profile-specific manifests are optional — create `<profile>.yaml` only if you 
 
 Scripts in `provision.d/` are copied into VMs via `limactl cp` and executed by muthr. They receive runtime env vars:
 
-| Variable | Description |
-|---|---|
-| `MUTHR_OPENAI_URL` | Inference engine endpoint (e.g., `http://host.lima.internal:8080/v1`) |
-| `MUTHR_MODEL_NAME` | Model identifier from active preset |
-| `MUTHR_CTX_WINDOW` | Context window size |
-| `MUTHR_WORKSPACE_MOUNT` | Workspace path inside VM |
+| Variable                | Description                                                           |
+| ----------------------- | --------------------------------------------------------------------- |
+| `MUTHR_OPENAI_URL`      | Inference engine endpoint (e.g., `http://host.lima.internal:8080/v1`) |
+| `MUTHR_MODEL_NAME`      | Model identifier from active preset                                   |
+| `MUTHR_CTX_WINDOW`      | Context window size                                                   |
+| `MUTHR_WORKSPACE_MOUNT` | Workspace path inside VM                                              |
 
 Provision scripts use these to generate native client configs and install their respective applications.
 
