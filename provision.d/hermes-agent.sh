@@ -11,7 +11,7 @@ HERMES_INSTALL_SHA256="dbd9d555ed4ac67bd1fc71ba6a39b410cf2af0ebcfd8f4889e086af78
 #   MUTHR_MODEL_NAME      01-qwen3-6-35b-a3b
 
 OPENAI_URL="${MUTHR_OPENAI_URL:-http://host.lima.internal:8080/v1}"
-MODEL_NAME="${MUTHR_MODEL_NAME:-unknown}"
+MODEL_NAME="${MUTHR_MODEL_NAME:-01-qwen3-6-35b-a3b}"
 
 echo "[PROC] Commencing Hermes Agent workspace provision for target VM..."
 
