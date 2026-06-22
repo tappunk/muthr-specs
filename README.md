@@ -1,3 +1,5 @@
+![muthr-specs](https://raw.githubusercontent.com/tappunk/.github/refs/heads/main/assets/muthr-specs.webp)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![X Follow](https://img.shields.io/twitter/follow/tappunk?style=social)](https://x.com/tappunk)
 
