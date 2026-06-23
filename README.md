@@ -32,8 +32,12 @@ muthr delete      # unprotect → stop → delete → clean cache
 ```
 muthr-specs/
 ├── base-sandbox.yaml           ← Shared Lima template (Debian 13, vz, mounts, base provision)
+├── manifests/
+│   ├── base/debian-vz.yaml     ← Base manifest used for sandbox profile resolution
+│   └── muthr-services.yaml     ← Persistent muthr-services VM manifest
 ├── provision.d/                ← Profile-specific provision scripts (copied + executed by muthr)
 │   ├── opencode.sh             ← Opencode AI: installs CLI, MCP servers, generates config, launches
+│   ├── muthr-services.sh       ← Installs and configures curated MCP services utilities VM
 │   ├── hermes-agent.sh         ← Hermes Agent: installs agent, configures local engine, drops to shell
 │   └── lib/provision-lib.sh    ← Shared shell helpers
 ├── clients/                    ← Client config templates (reference only — provision scripts generate native configs)
