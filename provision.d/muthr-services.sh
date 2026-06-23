@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 VM_NAME="${1:-}"
 
-echo "[PROC] MCP VM provisioning — SearXNG (containerd) + mcp-searxng"
+echo "[PROC] muthr-services VM provisioning — SearXNG (containerd) + mcp-searxng"
 
 if [[ -z "${VM_NAME}" ]]; then
     echo "[ERR] Target VM name required. Usage: $0 <vm-name>"
@@ -67,7 +67,7 @@ if ! grep -qF 'mcp-searxng PATH' "$HOME/.zshenv" 2>/dev/null; then
   printf '\nexport PATH="$HOME/.local/bin:$PATH"\n' >> "$HOME/.zshenv"
 fi
 
-echo "[ OK ] MCP VM provisioning complete"
+echo "[ OK ] muthr-services VM provisioning complete"
 EOF
 }
 

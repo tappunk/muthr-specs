@@ -1,6 +1,6 @@
-# Lima template for MCP services VM (SearXNG + mcp-searxng)
+# Lima template for muthr-services VM (SearXNG + mcp-searxng)
 # Self-contained — extends no base templates
-# Usage: muthr deploy mcp-services
+# Usage: muthr services start
 
 minimumLimaVersion: 2.0.0
 
@@ -85,7 +85,7 @@ provision:
       fi
 
       echo "========================================================"
-      echo "[ OK ] MCP VM provisioning complete"
+      echo "[ OK ] muthr-services VM provisioning complete"
       echo "   SearXNG web UI:  http://127.0.0.1:18766 (Lima port forward)"
       echo "   mcp-searxng API: http://127.0.0.1:18765/mcp (Lima port forward)"
       echo "========================================================"
