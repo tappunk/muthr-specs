@@ -30,9 +30,10 @@ if test -f "$HOME/.muthr_provision.lock" 2>/dev/null; then
     exit 0
 fi
 
+export DEBIAN_FRONTEND=noninteractive
 if ! command -v npm &>/dev/null; then
-    export DEBIAN_FRONTEND=noninteractive
-    sudo apt-get update -qq && sudo apt-get install -y -qq nodejs npm
+    sudo env DEBIAN_FRONTEND=noninteractive apt-get update -qq && \
+    sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq nodejs npm
 fi
 
 echo "[PROC] Installing MCP servers (memory + filesystem)..."

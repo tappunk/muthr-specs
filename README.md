@@ -17,14 +17,14 @@ Lima templates, provision scripts, and client config templates for [muthr](https
 muthr init
 
 # Start inference engine + muthr-services VM
-muthr boot
+muthr run
 
 # Navigate to a project and create a sandbox
 cd ~/src/myproject
-muthr up          # prompts: select profile (base, opencode, hermes-agent)
-muthr up --profile opencode  # explicit: create with opencode profile
-muthr down        # stop the sandbox VM
-muthr delete      # unprotect → stop → delete → clean cache
+muthr sandbox start          # prompts: select profile (base, opencode, hermes-agent)
+muthr sandbox start --profile opencode  # explicit: create with opencode profile
+muthr sandbox stop        # stop the sandbox VM
+muthr sandbox delete      # unprotect → stop → delete → clean cache
 ```
 
 ## Structure
@@ -76,4 +76,4 @@ Provision scripts use these to generate native client configs and install their 
 - **Lima VM** — virtual machine via Lima (`vmType: vz`)
 - **provision script** — bash script copied into VMs and executed by muthr
 - **profile** — a sandbox configuration (manifest + provision script)
-- **preset** — llama-server INI configuration (managed by `muthr serve`)
+- **preset** — llama-server INI configuration (managed by `muthr engine start`)
