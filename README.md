@@ -16,7 +16,7 @@ Lima templates, provision scripts, and client config templates for [muthr](https
 # Deploy configs into ~/.config/muthr/
 muthr init
 
-# Start inference engine + MCP services VM
+# Start inference engine + muthr-services VM
 muthr boot
 
 # Navigate to a project and create a sandbox
