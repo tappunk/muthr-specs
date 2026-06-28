@@ -1,0 +1,6 @@
+# muthr configuration (reference template)
+server_port = 8080
+workspace_root = "~/src"
+model_dir = "~/opt/models"
+default_provision_profile = "opencode"
+default_engine_runtime = "mlxcel"
