@@ -1,0 +1,11 @@
+# muthr-services container profile metadata (container backend)
+profile: muthr-services
+image: debian:13-slim
+ports:
+  - host: 18766
+    container: 8080
+  - host: 18765
+    container: 18765
+resources:
+  cpus: 1
+  memory: 2GiB
