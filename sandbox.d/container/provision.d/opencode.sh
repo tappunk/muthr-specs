@@ -15,6 +15,7 @@ PROFILE_REV="2026-06-28.6"
 #   MUTHR_SPECS_REV       sha256 of provision script content
 #   MUTHR_CONTAINER_HOST_GATEWAY container host bridge gateway
 #   MUTHR_SEARXNG_URL      http://<container-gateway>:18766
+#   MUTHR_ENGINE_RUNTIME   inference runtime provider key (mlxcel, llama)
 
 OPENAI_URL="${MUTHR_OPENAI_URL:?MUTHR_OPENAI_URL is required}"
 MODEL_NAME="${MUTHR_MODEL_NAME:?MUTHR_MODEL_NAME is required}"
@@ -22,6 +23,7 @@ CTX_WINDOW="${MUTHR_CTX_WINDOW:?MUTHR_CTX_WINDOW is required}"
 WORKSPACE_MOUNT="${MUTHR_WORKSPACE_MOUNT:-/workspace}"
 CONTAINER_HOST_GATEWAY="${MUTHR_CONTAINER_HOST_GATEWAY:?MUTHR_CONTAINER_HOST_GATEWAY is required}"
 SEARXNG_URL="${MUTHR_SEARXNG_URL:?MUTHR_SEARXNG_URL is required}"
+ENGINE="${MUTHR_ENGINE_RUNTIME:?MUTHR_ENGINE_RUNTIME is required}"
 
 echo "[PROC] Commencing opencode workspace provision for target container..."
 
@@ -29,40 +31,60 @@ _lib_init_provision_state "opencode" "$PROFILE_REV" "$OPENAI_URL" "$MODEL_NAME" 
 
 export DEBIAN_FRONTEND=noninteractive
 if ! command -v npm &>/dev/null; then
-    sudo env DEBIAN_FRONTEND=noninteractive apt-get update -qq && \
-    sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq nodejs npm
+    echo "[ERR] npm is not available in container baseline." >&2
+    exit 1
 fi
 
+export NPM_CONFIG_PREFIX="$HOME/.local"
+mkdir -p "$HOME/.local/bin" "$HOME/.local/lib"
+export PATH="$HOME/.local/bin:$PATH"
+
 echo "[PROC] Installing OpenAI-compatible provider package..."
-sudo npm install -g --loglevel=silent --yes \
+npm install -g --loglevel=silent --yes \
     "@ai-sdk/openai-compatible"
 
 echo "[PROC] Installing SearXNG MCP server package..."
-sudo npm install -g --loglevel=silent --yes mcp-searxng
+npm install -g --loglevel=silent --yes mcp-searxng
 
 echo "[PROC] Installing Astral UV package manager..."
-curl -LsSf "https://astral.sh/uv/install.sh" | sh
-if [ -x "$HOME/.local/bin/uvx" ]; then
-    sudo ln -sf "$HOME/.local/bin/uv" /usr/local/bin/uv
-    sudo ln -sf "$HOME/.local/bin/uvx" /usr/local/bin/uvx
-fi
+UV_INSTALL_SCRIPT="$(mktemp)"
+curl -fsSL "https://astral.sh/uv/install.sh" -o "$UV_INSTALL_SCRIPT"
+sh "$UV_INSTALL_SCRIPT"
+rm -f "$UV_INSTALL_SCRIPT"
 
 echo "[PROC] Installing OpenCode CLI..."
-curl -fsSL "https://opencode.ai/install" | bash
+OPENCODE_INSTALL_SCRIPT="$(mktemp)"
+curl -fsSL "https://opencode.ai/install" -o "$OPENCODE_INSTALL_SCRIPT"
+bash "$OPENCODE_INSTALL_SCRIPT"
+rm -f "$OPENCODE_INSTALL_SCRIPT"
+
 if [ -x "$HOME/.opencode/bin/opencode" ]; then
-    sudo ln -sf "$HOME/.opencode/bin/opencode" /usr/local/bin/opencode
-elif [ -x "$HOME/.local/bin/opencode" ]; then
-    sudo ln -sf "$HOME/.local/bin/opencode" /usr/local/bin/opencode
+  export PATH="$HOME/.opencode/bin:$PATH"
+fi
+
+if ! command -v opencode >/dev/null 2>&1 && [ -x "$HOME/.local/bin/opencode" ]; then
+  export PATH="$HOME/.local/bin:$PATH"
+fi
+
+if ! command -v opencode >/dev/null 2>&1; then
+  echo "[ERR] opencode installation did not produce an executable in PATH." >&2
+  exit 1
 fi
 
 echo "[PROC] Generating OpenCode configuration..."
 mkdir -p "$HOME/.opencode"
 
+JSON_MODEL_NAME="$(printf '%s' "$MODEL_NAME" | sed 's/\\/\\\\/g; s/"/\\"/g')"
+JSON_ENGINE="$(printf '%s' "$ENGINE" | sed 's/\\/\\\\/g; s/"/\\"/g')"
+JSON_OPENAI_URL="$(printf '%s' "$OPENAI_URL" | sed 's/\\/\\\\/g; s/"/\\"/g')"
+JSON_WORKSPACE_MOUNT="$(printf '%s' "$WORKSPACE_MOUNT" | sed 's/\\/\\\\/g; s/"/\\"/g')"
+JSON_SEARXNG_URL="$(printf '%s' "$SEARXNG_URL" | sed 's/\\/\\\\/g; s/"/\\"/g')"
+
 cat > "$HOME/.opencode/opencode.json" << EOF
 {
   "\$schema": "https://opencode.ai/config.json",
-  "model": "mlxcel/${MODEL_NAME}",
-  "small_model": "mlxcel/${MODEL_NAME}",
+  "model": "${JSON_ENGINE}/${JSON_MODEL_NAME}",
+  "small_model": "${JSON_ENGINE}/${JSON_MODEL_NAME}",
   "autoupdate": false,
 
   "disabled_providers": [
@@ -99,15 +121,15 @@ cat > "$HOME/.opencode/opencode.json" << EOF
   },
 
   "provider": {
-    "mlxcel": {
+    "${JSON_ENGINE}": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "mlxcel (container)",
+      "name": "${JSON_ENGINE} (container)",
       "options": {
-        "baseURL": "${OPENAI_URL}"
+          "baseURL": "${JSON_OPENAI_URL}"
       },
       "models": {
-        "${MODEL_NAME}": {
-          "name": "${MODEL_NAME}",
+        "${JSON_MODEL_NAME}": {
+          "name": "${JSON_MODEL_NAME}",
           "tools": true,
           "context_window": ${CTX_WINDOW},
           "limit": {
@@ -132,7 +154,7 @@ cat > "$HOME/.opencode/opencode.json" << EOF
     },
     "filesystem": {
       "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "${WORKSPACE_MOUNT}"],
+       "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "${JSON_WORKSPACE_MOUNT}"],
       "enabled": true
     },
     "searxng": {
@@ -140,7 +162,7 @@ cat > "$HOME/.opencode/opencode.json" << EOF
       "command": ["mcp-searxng", "--stdio"],
       "enabled": true,
       "environment": {
-        "SEARXNG_URL": "${SEARXNG_URL}"
+         "SEARXNG_URL": "${JSON_SEARXNG_URL}"
       }
     }
   },
@@ -148,15 +170,15 @@ cat > "$HOME/.opencode/opencode.json" << EOF
   "agent": {
     "plan": {
       "mode": "primary",
-      "model": "mlxcel/${MODEL_NAME}"
+      "model": "${JSON_ENGINE}/${JSON_MODEL_NAME}"
     },
     "build": {
       "mode": "primary",
-      "model": "mlxcel/${MODEL_NAME}"
+      "model": "${JSON_ENGINE}/${JSON_MODEL_NAME}"
     },
     "review": {
       "mode": "subagent",
-      "model": "mlxcel/${MODEL_NAME}",
+      "model": "${JSON_ENGINE}/${JSON_MODEL_NAME}",
       "tools": {
         "write": true,
         "edit": true,
@@ -165,7 +187,7 @@ cat > "$HOME/.opencode/opencode.json" << EOF
     },
     "explore": {
       "mode": "subagent",
-      "model": "mlxcel/${MODEL_NAME}",
+      "model": "${JSON_ENGINE}/${JSON_MODEL_NAME}",
       "tools": {
         "write": true,
         "edit": true,
