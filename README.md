@@ -1,31 +1,26 @@
-![muthr-specs](https://raw.githubusercontent.com/tappunk/.github/refs/heads/main/assets/muthr-specs.webp)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/tappunk/.github/refs/heads/main/assets/muthr-specs.webp" alt="muthr-specs" width="280"/>
+
+# muthr-specs
+
+Source-of-truth configuration and provisioning files for [muthr](https://github.com/tappunk/muthr).
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![X Follow](https://img.shields.io/twitter/follow/tappunk?style=social)](https://x.com/tappunk)
 
-# muthr-specs
-> \[!NOTE]
-> Source-of-truth specs deployed by `muthr init` into `~/.config/muthr/`.
+[Structure](#structure) · [Custom Specs](#custom-specs-repo) · [Full Docs](https://tappunk.com/muthr/)
+</div>
 
-Canonical documentation: **https://tappunk.com/muthr/**
+---
 
-Configuration files for [muthr](https://github.com/tappunk/muthr).
+## What's in this repo
 
-[Structure](#structure) • [Profiles](#profiles) • [Environment Variables](#environment-variables) • [Adding a New Profile](#adding-a-new-profile)
+- **Container manifests** — per-profile container definitions under `sandbox.d/container/manifests/`
+- **Provision scripts** — setup automation under `sandbox.d/container/provision.d/`
+- **Model presets** — engine model INI files under `provider.d/`
+- **Client templates** — reference configuration under `clients/`
 
-## Installation
-
-```bash
-muthr init
-```
-
-Use a custom specs repo:
-
-```bash
-muthr init --git-url https://github.com/custom/muthr-specs.git
-```
-
-See [muthr](https://github.com/tappunk/muthr) for architecture and usage.
+`muthr init` deploys these into `~/.config/muthr/` on your host.
 
 ## Structure
 
@@ -39,66 +34,14 @@ muthr-specs/
 └── LICENSE
 ```
 
-See [muthr](https://github.com/tappunk/muthr) for architecture details.
+## Custom specs repo
 
-## Profiles
+Point `muthr init` at a fork or custom specs repo:
 
-Profile assets live in `sandbox.d/container/`. See [muthr](https://github.com/tappunk/muthr) for documentation.
+```bash
+muthr init --git-url https://github.com/custom/muthr-specs.git
+```
 
-### base
+## Full documentation
 
-Minimal Debian 13 container.
-
-### opencode
-
-Installs opencode CLI and MCP servers.
-
-### hermes-agent
-
-Installs the Hermes-Agent runtime in an isolated Python/uv environment.
-
-### muthr-services
-
-Persistent services container for SearXNG and MCP bridge.
-
-### provider presets
-
-Preset INI files in `provider.d/{mlxcel,llama}/` are consumed by `muthr` runtime selection and `engine presets` output.
-
-## Environment Variables
-
-See [muthr](https://github.com/tappunk/muthr) for environment variable documentation.
-
-Runtime contract highlights:
-
-- `MUTHR_INFERENCE_URL` primary inference endpoint inside the sandbox
-- `MUTHR_OPENAI_URL` compatibility alias of inference endpoint
-- `MUTHR_MCP_BRIDGE_URL` MCP bridge endpoint exposed by `muthr-services`
-- `MUTHR_SEARXNG_URL` SearXNG endpoint exposed by `muthr-services`
-
-For restricted profiles, use `muthr image build --profile <name>` to pre-bake golden images and avoid WAN bootstrap at sandbox start.
-
-Workspace safety:
-
-- Set `workspace_root` / `MUTHR_WORKSPACE_ROOT` to a dedicated subdirectory (for example `~/src`), never `$HOME`.
-- `muthr` rejects `$HOME` as workspace root to prevent mounting your entire home directory into sandbox containers.
-
-## Script conventions
-
-- Use `set -Eeuo pipefail`
-- Set `DEBIAN_FRONTEND=noninteractive`
-- Keep shared helpers in `sandbox.d/container/provision.d/lib/`
-
-## Adding a New Profile
-
-1. Create `sandbox.d/container/provision.d/<profile>.sh`
-2. Optionally add `sandbox.d/container/manifests/<profile>.yaml`
-3. Optionally add a reference template under `clients/`
-
-See [muthr](https://github.com/tappunk/muthr) for usage and architecture.
-
-## Acknowledgements
-
-- [llama.cpp](https://github.com/ggml-org/llama.cpp)
-- [mlxcel](https://github.com/lablup/mlxcel)
-- [Apple container](https://github.com/apple/container)
+https://tappunk.com/muthr/
